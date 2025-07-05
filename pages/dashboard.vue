@@ -190,26 +190,50 @@
         <div v-else>
           <div v-if="activeMenu.id == 1">
           <!-- Unassigned Card  -->
-           <UCard variant="soft" class="bg-red-100">
-              <template #header>
-                <span class="font-bold"> Unassigned Users </span>
+          <UCollapsible>
+              <UButton
+                color="neutral"
+                class="w-full p-4 bg-red-100 rounded-bl-none rounded-br-none"
+              >
+                <span class="font-bold text-xl"> Unassigned Users </span>
+              </UButton>
+              <template #content>
+                <USeparator class="px-10" />
+                <UCard variant="soft" class="bg-red-100 rounded-tl-none rounded-tr-none ">
+                  <DashboardTableModel :data0="unassignedUsers" :columns0="columns" :creatorsLst="creatorsLst" />
+                </UCard>
               </template>
-              <DashboardTableModel :data0="unassignedUsers" :columns0="columns" :creatorsLst="creatorsLst" />
-            </UCard>
+          </UCollapsible>
             <!-- Not Treated Card  -->
-           <UCard variant="soft" class="bg-secondary-100 mt-10">
-              <template #header>
-                <span class="font-bold"> Not Treated Users </span>
+             <UCollapsible>
+              <UButton
+                color="neutral"
+                class="w-full p-4 bg-secondary-100 mt-10 rounded-bl-none rounded-br-none"
+              >
+                <span class="font-bold text-xl"> Not Treated Users </span>
+              </UButton>
+              <template #content>
+                <USeparator class="px-10" />
+                <UCard variant="soft" class="bg-secondary-100  rounded-tl-none rounded-tr-none ">
+                  <DashboardTableModel :data0="untreatedUsers" :columns0="columns" :creatorsLst="creatorsLst" />
+                </UCard>
               </template>
-              <DashboardTableModel :data0="untreatedUsers" :columns0="columns" :creatorsLst="creatorsLst"/>
-            </UCard>
+          </UCollapsible>
             <!-- All Users Card With Creator Filter  -->
-           <UCard variant="soft" class="bg-primary-100 mt-10">
-              <template #header>
-                <span class="font-bold"> All Users </span>
+             <UCollapsible>
+              <UButton
+                color="neutral"
+                class="w-full p-4 bg-primary-100 mt-10 rounded-bl-none rounded-br-none"
+              >
+                <span class="font-bold text-xl"> All Users </span>
+              </UButton>
+              <template #content>
+                <USeparator class="px-10" />
+                <UCard variant="soft" class="bg-primary-100  rounded-tl-none rounded-tr-none ">
+                  <DashboardTableModel :data0="allUsers" :columns0="columns" :creatorsLst="creatorsLst" />
+                </UCard>
               </template>
-              <DashboardTableModel :data0="allUsers" :columns0="columns" :creatorsLst="creatorsLst"/>
-            </UCard>
+          </UCollapsible>
           </div>
           <div v-else-if="activeMenu.id == 2">
             <span>menu 2 perso</span>
