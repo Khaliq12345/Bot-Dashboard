@@ -69,9 +69,5 @@ const selectedCreatorsLst = ref<any[]>([])
     <div class="text-end mt-3 text-semibold">
       Total of {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s)
     </div>
-    <!-- <div class="px-4 py-3.5 text-sm text-muted">
-      {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-      {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
-    </div> -->
   </div>
 </template>

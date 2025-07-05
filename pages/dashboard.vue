@@ -73,7 +73,6 @@
       .from('creators')
       .select("*")
       creatorsLst.value = data?.map(d=> d.creator) ?? [];
-      console.log(creatorsLst.value)
     } catch (err) {
         console.error('Error:', err);
     } finally {
@@ -193,7 +192,7 @@
           <!-- Unassigned Card  -->
            <UCard variant="soft" class="bg-red-100">
               <template #header>
-                <span class="font-bold text-xl"> Unassigned Users </span>
+                <span class="font-bold"> Unassigned Users </span>
               </template>
               <DashboardTableModel :data0="unassignedUsers" :columns0="columns" :creatorsLst="creatorsLst" />
             </UCard>
