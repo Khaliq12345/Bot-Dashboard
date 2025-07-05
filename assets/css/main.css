@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
+
+:root {
+    --ui-primary: #1E3A8A;
+    --ui-secondary: #F59E0B;
+    --ui-bg: white;
+    --ui-text: black;
+}
