@@ -7,4 +7,6 @@
 </template>
 
 <script setup lang="ts">
+const { supabase } = useSupabaseSub();
+provide("supabase", supabase);
 </script>

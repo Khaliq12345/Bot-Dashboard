@@ -23,8 +23,12 @@
         class="text-black-300"
       />
       <!-- Export -->
-      <UButton @click="exportCSV(users)" :label="'Export CSV'"
-                          color="neutral" icon="i-heroicons-arrow-down" />
+      <UButton
+        @click="exportCSV(users)"
+        :label="'Export CSV'"
+        color="neutral"
+        icon="i-heroicons-arrow-down"
+      />
     </div>
     <UsersTableModel
       :columns0="columns"
@@ -46,11 +50,9 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 const props = defineProps({
   creators: { type: Array, required: true },
-  supabaseClient: { type: SupabaseClient, required: true },
   userType: { type: String, required: true },
 });
 
@@ -62,9 +64,11 @@ const selectedCreator = ref(props.creators[0]);
 const limit = ref(10);
 const page = ref(1);
 const tableLoading: Ref<boolean> = ref(false);
-
 const cols: string[] = ["id", "user_id", "username", "full_name", "assigned"];
 const columns: TableColumn<any>[] = [];
+
+//initialize supabase
+const supabase = inject("supabase") as SupabaseClient;
 
 // setting up the columns
 cols.forEach((col) => {
@@ -99,9 +103,8 @@ const loadUsers = async (userType: string) => {
     page.value = 1;
   }
   const offset = limit.value * (page.value - 1);
-  if (!props.supabaseClient) return [];
   try {
-    let stmt = props.supabaseClient
+    let stmt = supabase
       .from("users")
       .select("*")
       .limit(limit.value)
@@ -121,37 +124,36 @@ const loadUsers = async (userType: string) => {
 };
 
 const exportCSV = (usersLst: Array<any>) => {
-        const rows: string[] = [];
+  const rows: string[] = [];
 
-        rows.push(cols.join(","));
+  rows.push(cols.join(","));
 
-        for (const match of usersLst) {
-            const row =
-                cols.map((key: string) => {
-                    const value = match?.[key];
-                    if (typeof value === "string") {
-                        return `"${value.replace(/"/g, '""')}"`;
-                    }
-                    return value ?? "";
-                });
-            rows.push(row.join(","));
-        }
+  for (const match of usersLst) {
+    const row = cols.map((key: string) => {
+      const value = match?.[key];
+      if (typeof value === "string") {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value ?? "";
+    });
+    rows.push(row.join(","));
+  }
 
-        const csvContent = rows.join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const csvContent = rows.join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const filename = `${props.userType}_${timestamp}.csv`;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `${props.userType}_${timestamp}.csv`;
 
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 // monitor changes in a few sources
 watch(

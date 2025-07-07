@@ -45,7 +45,6 @@
                 <UCard class="bg-gray-100 w-full">
                   <UsersTable
                     :creators="creatorsLst"
-                    :supabase-client="supabase"
                     :user-type="variation.userType"
                   />
                 </UCard>
@@ -59,12 +58,13 @@
 </template>
 
 <script setup lang="ts">
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveComponent } from "vue";
 
 const UButton = resolveComponent("UButton");
 
 // Initialise supabase client
-const { supabase } = useSupabaseSub();
+const supabase = inject("supabase") as SupabaseClient;
 
 // declare variables
 const creatorsLst: Ref<any[]> = ref([]);
