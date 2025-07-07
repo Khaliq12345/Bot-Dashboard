@@ -27,6 +27,14 @@
       >
         <span class="font-bold text-xl"> Bot Status </span>
       </UButton>
+
+      <UButton
+        to="/scraper"
+        color="neutral"
+        class="w-full p-4 bg-primary-200 mt-10 rounded-2xl"
+      >
+        <span class="font-bold text-xl"> Scraper Status </span>
+      </UButton>
     </UCard>
   </div>
 </template>

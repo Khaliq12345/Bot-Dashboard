@@ -69,7 +69,7 @@ const supabase = inject("supabase") as SupabaseClient;
 // declare variables
 const creatorsLst: Ref<any[]> = ref([]);
 const loadingData: Ref<boolean> = ref(false);
-const variations: Array<object> = [
+const variations: Array<any> = [
   {
     userType: "Unassigned",
     title: "Unassigned Users",

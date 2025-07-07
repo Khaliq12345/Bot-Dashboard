@@ -24,7 +24,7 @@
       />
       <!-- Export -->
       <UButton
-        @click="exportCSV(users)"
+        @click="exportCSV(bots)"
         :label="'Export CSV'"
         color="neutral"
         icon="i-heroicons-arrow-down"
@@ -32,9 +32,9 @@
     </div>
     <TableModel
       :columns0="columns"
-      :data0="users"
+      :data0="bots"
       :creators-lst="creators"
-      :key="users.length"
+      :key="bots.length"
     />
     <UButtonGroup class="mt-5">
       <UButton
@@ -54,18 +54,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const props = defineProps({
   creators: { type: Array<any>, required: true },
-  userType: { type: String, required: true },
 });
 
 // initialize variables
-const users = ref<any>([]);
+const bots = ref([]);
 const dateOptions = ["asc", "desc"];
 const dateOption = ref(dateOptions[0]);
 const selectedCreator = ref(props.creators[0]);
 const limit = ref(10);
 const page = ref(1);
 const tableLoading: Ref<boolean> = ref(false);
-const cols: string[] = ["id", "user_id", "username", "full_name", "assigned"];
+const cols: string[] = ["id", "created_at", "creator", "bot_type", "status", 'last_error', 'last_run', 'user'];
 const columns: TableColumn<any>[] = [];
 
 //initialize supabase
@@ -96,7 +95,7 @@ cols.forEach((col) => {
 });
 
 // Functions
-const loadUsers = async (userType: string) => {
+const loadData = async () => {
   tableLoading.value = true;
   console.log(selectedCreator.value, limit.value, page.value);
   // loadingData.value = true;
@@ -106,17 +105,12 @@ const loadUsers = async (userType: string) => {
   const offset = limit.value * (page.value - 1);
   try {
     let stmt = supabase
-      .from("users")
+      .from("bot_status")
       .select("*")
       .limit(limit.value)
       .range(offset, offset + limit.value);
-    if (selectedCreator.value && userType == "unassigned") {
-      stmt = stmt.eq("assigned", selectedCreator.value);
-    } else if (userType == "unTreated") {
-      stmt.or(`last_interaction_date.is.null`);
-    }
     const { data } = await stmt;
-    users.value = data;
+    bots.value = data as any;
   } catch (err) {
     console.error("Error:", err);
   } finally {
@@ -124,12 +118,12 @@ const loadUsers = async (userType: string) => {
   }
 };
 
-const exportCSV = (usersLst: Array<any>) => {
+const exportCSV = (botsLst: Array<any>) => {
   const rows: string[] = [];
 
   rows.push(cols.join(","));
 
-  for (const match of usersLst) {
+  for (const match of botsLst) {
     const row = cols.map((key: string) => {
       const value = match?.[key];
       if (typeof value === "string") {
@@ -144,7 +138,7 @@ const exportCSV = (usersLst: Array<any>) => {
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `${props.userType}_${timestamp}.csv`;
+  const filename = `bots_status_${timestamp}.csv`;
 
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
@@ -160,12 +154,12 @@ const exportCSV = (usersLst: Array<any>) => {
 watch(
   () => [selectedCreator.value, limit.value, page.value],
   async ([newCreator, newLimit, newPage], [oldCreator, oldLimit, oldPage]) => {
-    await loadUsers(props.userType);
+    await loadData();
   },
 );
 
 // load some data when component loads
 onMounted(async () => {
-  await loadUsers(props.userType);
+  await loadData();
 });
 </script>
