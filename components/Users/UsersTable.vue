@@ -22,6 +22,9 @@
         placeholder="Limit"
         class="text-black-300"
       />
+      <!-- Export -->
+      <UButton @click="exportCSV(users)" :label="'Export CSV'"
+                          color="neutral" icon="i-heroicons-arrow-down" />
     </div>
     <UsersTableModel
       :columns0="columns"
@@ -116,6 +119,39 @@ const loadUsers = async (userType: string) => {
     tableLoading.value = false;
   }
 };
+
+const exportCSV = (usersLst: Array<any>) => {
+        const rows: string[] = [];
+
+        rows.push(cols.join(","));
+
+        for (const match of usersLst) {
+            const row =
+                cols.map((key: string) => {
+                    const value = match?.[key];
+                    if (typeof value === "string") {
+                        return `"${value.replace(/"/g, '""')}"`;
+                    }
+                    return value ?? "";
+                });
+            rows.push(row.join(","));
+        }
+
+        const csvContent = rows.join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const filename = `${props.userType}_${timestamp}.csv`;
+
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
 
 // monitor changes in a few sources
 watch(
