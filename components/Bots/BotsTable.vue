@@ -64,7 +64,16 @@ const selectedCreator = ref(props.creators[0]);
 const limit = ref(10);
 const page = ref(1);
 const tableLoading: Ref<boolean> = ref(false);
-const cols: string[] = ["id", "created_at", "creator", "bot_type", "status", 'last_error', 'last_run', 'user'];
+const cols: string[] = [
+  "id",
+  "created_at",
+  "creator",
+  "bot_type",
+  "status",
+  "last_error",
+  "last_run",
+  "user",
+];
 const columns: TableColumn<any>[] = [];
 
 //initialize supabase
