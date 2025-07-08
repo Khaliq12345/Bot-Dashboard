@@ -9,6 +9,16 @@
   />
 
   <USelect
+  v-if="props.withStatus"
+    :items="statuses"
+    v-model="status"
+    name="Status"
+    placeholder="Status"
+    class="text-red-300"
+    @update:model-value="$emit('updateStatus', status)"
+  />
+
+  <USelect
     :items="creators"
     v-model="creator"
     name="Creators"
@@ -45,10 +55,19 @@ const props = defineProps({
     type: Array as PropType<any[]>,
     required: true,
   },
+  statuses: {
+    type: Array as PropType<any[]>,
+    required: false,
+  },
+  withStatus: {
+    type: Boolean,
+    required: false,
+  },
 });
 
-const emits = defineEmits(["updateOrder", "updateCreator", "updateLimit", "exportCSV"]);
+const emits = defineEmits(["updateOrder", "updateStatus", "updateCreator", "updateLimit", "exportCSV"]);
 const order: Ref<any> = ref(null);
+const status: Ref<any> = ref(null);
 const creator: Ref<any> = ref(null);
 const limit: Ref<any> = ref(null);
 </script>

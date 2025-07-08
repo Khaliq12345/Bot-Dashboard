@@ -1,8 +1,9 @@
 <template>
   <div class="w-full">
     <div class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5">
-      <TableFilters :creators="creators" :orders="sortOrders" @update-creator="(value) => (selectedCreator = value)"
+      <TableFilters :creators="creators" :orders="sortOrders" :statuses="sortStatuses" :with-status="true" @update-creator="(value) => (selectedCreator = value)"
     @update-limit="(value) => (limit = value)"
+    @update-status="(value) => (sortStatus = value)"
     @update-order="(value) => (sortOrder = value)" @export-c-s-v="useexportCSV(botData, cols, 'bots_status')" />
     </div>
     <TableModel :columns0="columns" :data0="botData" :creators-lst="creators"
@@ -27,6 +28,8 @@ const props = defineProps({
 const botData = ref<Array<any>>([]);
 const sortOrders = ["asc", "desc"];
 const sortOrder = ref(sortOrders[0]);
+const sortStatuses = ["success", "failed"];
+const sortStatus = ref(sortStatuses[0]);
 const selectedCreator = ref(props.creators[0]);
 const limit = ref(10);
 const page = ref(1);
@@ -90,6 +93,7 @@ const loadData = async () => {
       .from("bot_status")
       .select("*")
       .eq("creator", selectedCreator.value)
+      .eq("status", sortStatus.value)
       .order("created_at", { ascending: sortOrder.value === "asc" })
       .limit(limit.value)
       .range(offset, offset + limit.value);
@@ -106,10 +110,10 @@ const loadData = async () => {
 
 // monitor changes in a few sources
 watch(
-  () => [sortOrder, selectedCreator.value, limit.value, page.value],
+  () => [sortStatus, selectedCreator.value, limit.value, page.value],
   async (
-    [newDate, newCreator, newLimit, newPage],
-    [oldDate, oldCreator, oldLimit, oldPage],
+    [newCreator, newLimit, newPage],
+    [oldCreator, oldLimit, oldPage],
   ) => {
     await loadData();
   },
@@ -118,6 +122,11 @@ watch(
 watch(sortOrder, async (newVal, oldVal) => {
   await loadData();
 });
+
+watch(sortStatus, async (newVal, oldVal) => {
+  await loadData();
+});
+
 
 // load some data when component loads
 onMounted(async () => {

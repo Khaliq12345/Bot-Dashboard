@@ -5,6 +5,23 @@
     </div>
     <!-- When Loaded -->
     <div v-else class="mt-10">
+      <!-- General Metrics -->
+      <div class="mb-10 flex flex-wrap gap-8 items-center justify-center">
+        <div class="" v-for="item in generalMetrics">
+          <UCard variant="soft" class="p-5 text-center shadow-2xl" :class="item.color">
+            <div class="flex items-center justify-start">
+              <div class="text-left">
+                <UIcon :name="item.icon" size="30" class="mr-5" />
+                <h3 class="text-2xl md:text-3xl font-bold mb-2">{{ item.value }}</h3>
+                <p class="font-semibold">{{ item.title }}</p>
+              </div>
+            </div>
+          </UCard>
+        </div>
+      </div>
+      <!--  -->
+      <USeparator class="mb-10 mx-15" />
+      <!-- Bot Cards -->
       <div class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center">
         <UCard v-for="botCard in botCards" class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
           variant="outline" :class="{
@@ -21,8 +38,8 @@
             <div class="mb-3">
               <span class="font-bold">Running Status :</span>
               <span class="ml-2" :class="isMoreThanOneHourAgo(botCard.last_run)
-                  ? 'text-amber-600'
-                  : 'text-green-600'
+                ? 'text-amber-600'
+                : 'text-green-600'
                 ">
                 {{
                   isMoreThanOneHourAgo(botCard.last_run) ? "Inactive" : "Active"
@@ -79,7 +96,7 @@ const supabase = inject("supabase") as SupabaseClient;
 const creatorsLst: Ref<any[]> = ref([]);
 const loadingData: Ref<boolean> = ref(false);
 const botTypes: Array<String> = ["comment"];
-const botCards: Array<any> = [];
+const botCards: Ref<Array<any>> = ref([]);
 const columns: Column[] = [
   {
     title: "Last Run",
@@ -87,7 +104,7 @@ const columns: Column[] = [
     key2: "",
   },
   {
-    title: "Last Execution Run Status",
+    title: "Last Run Status",
     key: "status",
     key2: "",
   },
@@ -107,12 +124,12 @@ const columns: Column[] = [
     key2: "successRate",
   },
   {
-    title: "Average Run Time",
+    title: "Uptime Percentage",
     key: "",
-    key2: "averageRunTime",
+    key2: "uptimePercentage",
   },
   {
-    title: "Failure Rate/Details",
+    title: "Failure Rate",
     key: "",
     key2: "failureRate",
   },
@@ -121,22 +138,23 @@ const columns: Column[] = [
     key: "",
     key2: "failurePercentage",
   },
-   {
-    title: "Uptime Percentage",
-    key: "",
-    key2: "uptimePercentage",
-  },
-   {
-    title: "Processed Items",
-    key: "",
-    key2: "processedItems",
-  },
-   {
-    title: "Last Successful Run Details",
+  {
+    title: "Last Successful Run",
     key: "",
     key2: "lastSuccessRun",
   },
 ];
+const generalMetrics = [
+  { title: 'Total Bots', icon: 'i-lucide-bot', value: computed(() => botCards.value.length), color: 'bg-amber-200' },
+  {
+    title: 'Active Bots', icon: 'i-lucide-drone', value: computed(() => botCards.value.filter((value) => {
+      return !isMoreThanOneHourAgo(value.last_run)
+    }).length), color: 'bg-green-200'
+  },
+  { title: 'Inactive Bots', icon: 'i-lucide-bot-off', value: computed(() => botCards.value.filter((value) => {
+      return isMoreThanOneHourAgo(value.last_run)
+    }).length), color: 'bg-red-200' },
+]
 
 // Functions
 async function loadCreators() {
@@ -195,37 +213,22 @@ async function loadCardsInfo() {
           const uptime = totalRuns ? (successes / totalRuns) * 100 : 0
           // Taux d'échec
           const failurePercentage = totalRuns ? (failures / totalRuns) * 100 : 0
-          // Délai moyen d'exécution = now - last_run
-          const runTimes = history
-            .filter((x) => x.last_run)
-            .map((x) => new Date(x.created_at).getTime() - new Date(x.last_run).getTime())
-            .filter((d) => d > 0)
-          const averageRunTime = runTimes.length
-            ? Math.round(runTimes.reduce((a, b) => a + b, 0) / runTimes.length)
-            : 0
-
           // Dernier run réussi
           const lastSuccess = history
             .filter((x) => x.status === 'success')
             .sort((a, b) => new Date(b.last_run).getTime() - new Date(a.last_run).getTime())[0]
 
           metrics = {
-            totalRuns : totalRuns,
+            totalRuns: totalRuns,
             successRate: `${successes} / ${totalRuns}`,
-            uptimePercentage: uptime,
-            averageRunTime: averageRunTime,
+            uptimePercentage: `${Number(uptime.toFixed(2))} %`,
             failureRate: `${failures} / ${totalRuns}`,
-            failurePercentage: failurePercentage,
-            processedItems: totalRuns,
+            failurePercentage: `${Number(failurePercentage.toFixed(2))} %`,
             lastSuccessRun: lastSuccess?.last_run || null,
           }
-
         }
-
-
-
         // 
-        botCards.push({
+        botCards.value.push({
           ...latestBotStatus,
           metrics: metrics
         });
