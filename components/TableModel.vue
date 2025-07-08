@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <UTable ref="table" :data="data" :columns="columns" sticky class="h-96">
+    <UTable ref="table" :data="data0" :columns="columns" sticky class="h-96">
       <template #expanded="{ row }">
         <pre>{{ row.original }}</pre>
       </template>
@@ -29,5 +29,4 @@ const props = defineProps({
 });
 const columns: any = props.columns0 ? props.columns0 : [];
 const table = useTemplateRef("table");
-const data: any = props.data0 ? props.data0 : [];
 </script>

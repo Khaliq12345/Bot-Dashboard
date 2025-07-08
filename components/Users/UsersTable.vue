@@ -111,7 +111,7 @@ const loadUsers = async (userType: string) => {
       .eq("creator", selectedCreator.value)
       .order("id", { ascending: dateOption.value === "asc" })
       .limit(limit.value)
-      .range(offset, offset + limit.value)
+      .range(offset, offset + limit.value);
     if (selectedCreator.value && userType == "unassigned") {
       stmt = stmt.eq("assigned", selectedCreator.value);
     } else if (userType == "unTreated") {
@@ -166,9 +166,9 @@ watch(
   },
 );
 
-watch(dateOption, async(newVal, oldVal) =>{
+watch(dateOption, async (newVal, oldVal) => {
   await loadUsers(props.userType);
-})
+});
 
 // load some data when component loads
 onMounted(async () => {

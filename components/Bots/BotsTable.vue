@@ -1,15 +1,48 @@
 <template>
   <div class="w-full">
-    <div class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5">
-      <USelect :items="dateOptions" v-model="dateOption" class="text-black-300" name="Sort" placeholder="Sort" />
-      <USelect :items="creators" v-model="selectedCreator" class="text-black-300" placeholder="Creators" />
-      <UInputNumber v-model="limit" orientation="vertical" placeholder="Limit" class="text-black-300" />
+    <div
+      class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5"
+    >
+      <USelect
+        :items="dateOptions"
+        v-model="dateOption"
+        class="text-black-300"
+        name="Sort"
+        placeholder="Sort"
+      />
+      <USelect
+        :items="creators"
+        v-model="selectedCreator"
+        class="text-black-300"
+        placeholder="Creators"
+      />
+      <UInputNumber
+        v-model="limit"
+        orientation="vertical"
+        placeholder="Limit"
+        class="text-red-300 w-24"
+      />
       <!-- Export -->
-      <UButton @click="exportCSV(bots)" :label="'Export CSV'" color="neutral" icon="i-heroicons-arrow-down" />
+      <UButton
+        @click="exportCSV(botData)"
+        :label="'Export CSV'"
+        color="neutral"
+        icon="i-heroicons-arrow-down"
+      />
     </div>
-    <TableModel :columns0="columns" :data0="bots" :creators-lst="creators" :key="`${bots.length}_${selectedCreator}_${dateOption}`" />
+    <TableModel
+      :columns0="columns"
+      :data0="botData"
+      :creators-lst="creators"
+      :key="`${botData.length}_${selectedCreator}_${dateOption}`"
+    />
     <UButtonGroup class="mt-5">
-      <UButton color="neutral" variant="outline" label="Prev" @click="page > 0 ? page-- : {}" />
+      <UButton
+        color="neutral"
+        variant="outline"
+        label="Prev"
+        @click="page > 0 ? page-- : {}"
+      />
       <UButton color="neutral" variant="outline" label="Next" @click="page++" />
     </UButtonGroup>
   </div>
@@ -24,7 +57,7 @@ const props = defineProps({
 });
 
 // initialize variables
-const bots = ref<Array<any>>([]);
+const botData = ref<Array<any>>([]);
 const dateOptions = ["asc", "desc"];
 const dateOption = ref(dateOptions[0]);
 const selectedCreator = ref(props.creators[0]);
@@ -73,7 +106,13 @@ cols.forEach((col) => {
 // Functions
 const loadData = async () => {
   tableLoading.value = true;
-  console.log(selectedCreator.value, limit.value, page.value, dateOption.value, dateOption.value == 'asc');
+  console.log(
+    selectedCreator.value,
+    limit.value,
+    page.value,
+    dateOption.value,
+    dateOption.value == "asc",
+  );
   // loadingData.value = true;
   if (page.value == 0) {
     page.value = 1;
@@ -86,11 +125,10 @@ const loadData = async () => {
       .eq("creator", selectedCreator.value)
       .order("created_at", { ascending: dateOption.value === "asc" })
       .limit(limit.value)
-      .range(offset, offset + limit.value)
+      .range(offset, offset + limit.value);
     const { data } = await stmt;
-    bots.value = data as any;
-    console.log(bots.value)
-
+    botData.value = data as any;
+    console.log(botData.value);
   } catch (err) {
     console.error("Error:", err);
   } finally {
@@ -133,15 +171,17 @@ const exportCSV = (botsLst: Array<any>) => {
 // monitor changes in a few sources
 watch(
   () => [dateOption, selectedCreator.value, limit.value, page.value],
-  async ([newDate, newCreator, newLimit, newPage], [oldDate, oldCreator, oldLimit, oldPage]) => {
+  async (
+    [newDate, newCreator, newLimit, newPage],
+    [oldDate, oldCreator, oldLimit, oldPage],
+  ) => {
     await loadData();
   },
 );
 
-watch(dateOption, async(newVal, oldVal) =>{
+watch(dateOption, async (newVal, oldVal) => {
   await loadData();
-})
-
+});
 
 // load some data when component loads
 onMounted(async () => {
