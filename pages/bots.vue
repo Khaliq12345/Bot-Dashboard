@@ -20,7 +20,7 @@
         </div>
       </div>
       <!--  -->
-      <USeparator class="mb-10 mx-15" />
+      <USeparator class="mb-10 " />
       <!-- Bot Cards -->
       <div class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center">
         <UCard v-for="botCard in botCards" class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
@@ -33,7 +33,7 @@
             <h1 class="text-2xl font-bold">{{ botCard.creator }}</h1>
             <p class="text-gray-500">{{ botCard.bot_type }}</p>
           </div>
-          <USeparator class="mx-5 my-3" />
+          <USeparator class="mr-5 my-3" />
           <div v-if="botCard.id" class="text-left">
             <div class="mb-3">
               <span class="font-bold">Running Status :</span>
@@ -47,15 +47,25 @@
               </span>
             </div>
             <!--  -->
-            <div class="mb-3" v-for="col in columns">
+            <div class="mb-2" v-for="col in columns.filter((c)=>!c['key2'])">
               <span class="font-bold">{{ col["title"] }}: </span>
-              <span v-if="!col['key2']" class="ml-2">
+              <span class="ml-2">
                 {{ botCard[col["key"]] }}
               </span>
-              <span v-if="!col['key']" class="ml-2">
+            </div>
+            <UCollapsible v-if="columns.filter((c)=>!c['key']).length > 0" :default-open="false">
+          <UButton class="w-full bg-white text-black mb-2">
+            <span class="font-bold text-sm md:text-lg"> More Metrics </span>
+          </UButton>
+          <template #content>
+            <div class="mb-3" v-for="col in columns.filter((c)=>!c['key'])">
+              <span class="font-bold">{{ col["title"] }}: </span>
+              <span class="ml-2">
                 {{ botCard.metrics[col["key2"]] }}
               </span>
             </div>
+          </template>
+        </UCollapsible>
             <!--  -->
           </div>
           <div v-else class="py-15 font-bold">No Data</div>

@@ -31,7 +31,7 @@
         v-model="limit"
         orientation="vertical"
         placeholder="Limit"
-        class="text-black-300"
+        class="text-red-300"
         @update:model-value="$emit('updateLimit', limit)"
       />
       <!-- Export -->
