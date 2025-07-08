@@ -3,21 +3,21 @@
     <div
       class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5"
     >
-     <!-- <USelectComponent :items="sortOrders" :model="sortOrder" name="Sort" placeholder="Sort" /> -->
+      <!-- <USelectComponent :items="sortOrders" :model="sortOrder" name="Sort" placeholder="Sort" /> -->
       <USelectComponent
-    :items="sortOrders"
-    v-model="sortOrder"
-    name="Sort"
-    placeholder="Sort"
-  />
-      <USelect
+        :items="sortOrders"
+        name="Sort"
+        placeholder="Sort"
+        @update-order="(value) => (sortOrder = value)"
+      />
+      <!--      <USelect
         :items="sortOrders"
         v-model="sortOrder"
         class="text-black-300"
         name="Sort"
         placeholder="Sort"
       />
-      
+-->
       <UInputNumber
         v-model="limit"
         orientation="vertical"
@@ -36,7 +36,8 @@
       :columns0="columns"
       :data0="users"
       :creators-lst="creators"
-        :key="`${users.length}_${selectedCreator}_${sortOrder}`" />
+      :key="`${users.length}_${selectedCreator}_${sortOrder}`"
+    />
     <UButtonGroup class="mt-5">
       <UButton
         color="neutral"

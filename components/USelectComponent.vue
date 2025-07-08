@@ -1,34 +1,32 @@
 <template>
   <USelect
     :items="items"
-    :v-model="modelValue"
+    v-model="value"
     :name="name"
     :placeholder="placeholder"
-    class="text-black-300"
+    class="text-red-300"
+    @update:model-value="$emit('updateOrder', value)"
   />
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import type { PropType } from "vue";
 
 const props = defineProps({
   items: {
     type: Array as PropType<any[]>,
     required: true,
   },
-  modelValue: {
-    type: [String, Number, Object],
-    required: true,
-  },
   placeholder: {
     type: String,
-    default: '',
+    default: "",
   },
   name: {
     type: String,
-    default: '',
+    default: "",
   },
-})
+});
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(["updateOrder"]);
+const value: Ref<any> = ref(null);
 </script>
