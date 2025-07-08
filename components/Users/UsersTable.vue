@@ -3,19 +3,21 @@
     <div
       class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5"
     >
+     <!-- <USelectComponent :items="sortOrders" :model="sortOrder" name="Sort" placeholder="Sort" /> -->
+      <USelectComponent
+    :items="sortOrders"
+    v-model="sortOrder"
+    name="Sort"
+    placeholder="Sort"
+  />
       <USelect
-        :items="dateOptions"
-        v-model="dateOption"
+        :items="sortOrders"
+        v-model="sortOrder"
         class="text-black-300"
         name="Sort"
         placeholder="Sort"
       />
-      <USelect
-        :items="creators"
-        v-model="selectedCreator"
-        class="text-black-300"
-        placeholder="Creators"
-      />
+      
       <UInputNumber
         v-model="limit"
         orientation="vertical"
@@ -24,7 +26,7 @@
       />
       <!-- Export -->
       <UButton
-        @click="exportCSV(users)"
+        @click="useexportCSV(users, cols, `${props.userType}`)"
         :label="'Export CSV'"
         color="neutral"
         icon="i-heroicons-arrow-down"
@@ -34,8 +36,7 @@
       :columns0="columns"
       :data0="users"
       :creators-lst="creators"
-      :key="users.length"
-    />
+        :key="`${users.length}_${selectedCreator}_${sortOrder}`" />
     <UButtonGroup class="mt-5">
       <UButton
         color="neutral"
@@ -59,8 +60,8 @@ const props = defineProps({
 
 // initialize variables
 const users = ref<Array<any>>([]);
-const dateOptions = ["asc", "desc"];
-const dateOption = ref(dateOptions[0]);
+const sortOrders = ["asc", "desc"];
+const sortOrder = ref(sortOrders[0]);
 const selectedCreator = ref(props.creators[0]);
 const limit = ref(10);
 const page = ref(1);
@@ -108,8 +109,8 @@ const loadUsers = async (userType: string) => {
     let stmt = supabase
       .from("users")
       .select("*")
-      .eq("creator", selectedCreator.value)
-      .order("id", { ascending: dateOption.value === "asc" })
+      .eq("assigned", selectedCreator.value)
+      .order("id", { ascending: sortOrder.value === "asc" })
       .limit(limit.value)
       .range(offset, offset + limit.value);
     if (selectedCreator.value && userType == "unassigned") {
@@ -126,38 +127,6 @@ const loadUsers = async (userType: string) => {
   }
 };
 
-const exportCSV = (usersLst: Array<any>) => {
-  const rows: string[] = [];
-
-  rows.push(cols.join(","));
-
-  for (const match of usersLst) {
-    const row = cols.map((key: string) => {
-      const value = match?.[key];
-      if (typeof value === "string") {
-        return `"${value.replace(/"/g, '""')}"`;
-      }
-      return value ?? "";
-    });
-    rows.push(row.join(","));
-  }
-
-  const csvContent = rows.join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `${props.userType}_${timestamp}.csv`;
-
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
 // monitor changes in a few sources
 watch(
   () => [selectedCreator.value, limit.value, page.value],
@@ -166,7 +135,7 @@ watch(
   },
 );
 
-watch(dateOption, async (newVal, oldVal) => {
+watch(sortOrder, async (newVal, oldVal) => {
   await loadUsers(props.userType);
 });
 
