@@ -1,26 +1,17 @@
 <template>
   <DashBoardHeader title="Bots Dashboard">
-    <div
-      v-if="loadingData"
-      class="place-items-center place-content-center my-15"
-    >
+    <div v-if="loadingData" class="place-items-center place-content-center my-15">
       <UProgress animation="carousel" color="secondary" />
     </div>
     <!-- When Loaded -->
     <div v-else class="mt-10">
-      <div
-        class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center"
-      >
-        <UCard
-          v-for="botCard in botCards"
-          class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
-          variant="outline"
-          :class="{
+      <div class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center">
+        <UCard v-for="botCard in botCards" class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
+          variant="outline" :class="{
             'bg-gray-300': !botCard.id,
             'bg-green-300': botCard.id && botCard.status == 'success',
             'bg-red-300': botCard.id && botCard.status == 'failed',
-          }"
-        >
+          }">
           <div class="text-center">
             <h1 class="text-2xl font-bold">{{ botCard.creator }}</h1>
             <p class="text-gray-500">{{ botCard.bot_type }}</p>
@@ -29,14 +20,10 @@
           <div v-if="botCard.id" class="text-left">
             <div class="mb-3">
               <span class="font-bold">Running Status :</span>
-              <span
-                class="ml-2"
-                :class="
-                  isMoreThanOneHourAgo(botCard.last_run)
-                    ? 'text-amber-600'
-                    : 'text-green-600'
-                "
-              >
+              <span class="ml-2" :class="isMoreThanOneHourAgo(botCard.last_run)
+                  ? 'text-amber-600'
+                  : 'text-green-600'
+                ">
                 {{
                   isMoreThanOneHourAgo(botCard.last_run) ? "Inactive" : "Active"
                 }}
@@ -45,8 +32,11 @@
             <!--  -->
             <div class="mb-3" v-for="col in columns">
               <span class="font-bold">{{ col["title"] }}: </span>
-              <span class="ml-2">
+              <span v-if="!col['key2']" class="ml-2">
                 {{ botCard[col["key"]] }}
+              </span>
+              <span v-if="!col['key']" class="ml-2">
+                {{ botCard.metrics[col["key2"]] }}
               </span>
             </div>
             <!--  -->
@@ -58,9 +48,7 @@
       <div class="mb-10">
         <!-- Table -->
         <UCollapsible :default-open="true">
-          <UButton
-            class="w-full p-4 bg-gray-300 rounded-bl-none rounded-br-none"
-          >
+          <UButton class="w-full p-4 bg-gray-300 rounded-bl-none rounded-br-none">
             <span class="font-bold text-sm md:text-lg"> Bot Status Table </span>
           </UButton>
           <template #content>
@@ -81,6 +69,7 @@ import BotsTable from "~/components/Bots/BotsTable.vue";
 interface Column {
   title: string;
   key: string;
+  key2: string;
 }
 
 // Initialise supabase client
@@ -95,14 +84,57 @@ const columns: Column[] = [
   {
     title: "Last Run",
     key: "last_run",
+    key2: "",
   },
   {
     title: "Last Execution Run Status",
     key: "status",
+    key2: "",
   },
   {
     title: "Error",
     key: "last_error",
+    key2: "",
+  },
+  {
+    title: "Total Runs",
+    key: "",
+    key2: "totalRuns",
+  },
+  {
+    title: "Success Rate",
+    key: "",
+    key2: "successRate",
+  },
+  {
+    title: "Average Run Time",
+    key: "",
+    key2: "averageRunTime",
+  },
+  {
+    title: "Failure Rate/Details",
+    key: "",
+    key2: "failureRate",
+  },
+  {
+    title: "Failure Percentage",
+    key: "",
+    key2: "failurePercentage",
+  },
+   {
+    title: "Uptime Percentage",
+    key: "",
+    key2: "uptimePercentage",
+  },
+   {
+    title: "Processed Items",
+    key: "",
+    key2: "processedItems",
+  },
+   {
+    title: "Last Successful Run Details",
+    key: "",
+    key2: "lastSuccessRun",
   },
 ];
 
@@ -143,14 +175,60 @@ async function loadCardsInfo() {
           last_run: null,
           user: null,
         };
-        if (error) {
-          // console.error('Erreur lors de la récupération du statut du bot:', error);
-        } else if (data && data.length > 0) {
+        if (data && data.length > 0) {
           latestBotStatus = data[0];
-        } else {
-          // console.log('Aucun statut de bot correspondant trouvé.');
         }
-        botCards.push(latestBotStatus);
+        // Working Metrics
+        let metrics = null;
+        // All Data
+        const { data: history, error: historyError } = await supabase
+          .from('bot_status')
+          .select('status, last_run, created_at')
+          .eq('creator', creator)
+          .eq('bot_type', botType)
+
+        if (history) {
+          const totalRuns = history.length
+          const successes = history.filter((x) => x.status === 'success').length
+          const failures = history.filter((x) => x.status === 'failed').length
+          // Uptime = % de succès
+          const uptime = totalRuns ? (successes / totalRuns) * 100 : 0
+          // Taux d'échec
+          const failurePercentage = totalRuns ? (failures / totalRuns) * 100 : 0
+          // Délai moyen d'exécution = now - last_run
+          const runTimes = history
+            .filter((x) => x.last_run)
+            .map((x) => new Date(x.created_at).getTime() - new Date(x.last_run).getTime())
+            .filter((d) => d > 0)
+          const averageRunTime = runTimes.length
+            ? Math.round(runTimes.reduce((a, b) => a + b, 0) / runTimes.length)
+            : 0
+
+          // Dernier run réussi
+          const lastSuccess = history
+            .filter((x) => x.status === 'success')
+            .sort((a, b) => new Date(b.last_run).getTime() - new Date(a.last_run).getTime())[0]
+
+          metrics = {
+            totalRuns : totalRuns,
+            successRate: `${successes} / ${totalRuns}`,
+            uptimePercentage: uptime,
+            averageRunTime: averageRunTime,
+            failureRate: `${failures} / ${totalRuns}`,
+            failurePercentage: failurePercentage,
+            processedItems: totalRuns,
+            lastSuccessRun: lastSuccess?.last_run || null,
+          }
+
+        }
+
+
+
+        // 
+        botCards.push({
+          ...latestBotStatus,
+          metrics: metrics
+        });
       }
     }
   } catch (err) {
