@@ -18,7 +18,7 @@
           :class="{
             'bg-gray-300': !botCard.id,
             'bg-green-300': botCard.id && botCard.status == 'success',
-            'bg-red-300': botCard.id && botCard.status != 'failed',
+            'bg-red-300': botCard.id && botCard.status == 'failed',
           }"
         >
           <div class="text-center">

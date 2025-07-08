@@ -58,7 +58,7 @@ const props = defineProps({
 });
 
 // initialize variables
-const users = ref<any>([]);
+const users = ref<Array<any>>([]);
 const dateOptions = ["asc", "desc"];
 const dateOption = ref(dateOptions[0]);
 const selectedCreator = ref(props.creators[0]);
@@ -108,15 +108,17 @@ const loadUsers = async (userType: string) => {
     let stmt = supabase
       .from("users")
       .select("*")
+      .eq("creator", selectedCreator.value)
+      .order("id", { ascending: dateOption.value === "asc" })
       .limit(limit.value)
-      .range(offset, offset + limit.value);
+      .range(offset, offset + limit.value)
     if (selectedCreator.value && userType == "unassigned") {
       stmt = stmt.eq("assigned", selectedCreator.value);
     } else if (userType == "unTreated") {
       stmt.or(`last_interaction_date.is.null`);
     }
     const { data } = await stmt;
-    users.value = data;
+    users.value = data as any;
   } catch (err) {
     console.error("Error:", err);
   } finally {
@@ -163,6 +165,10 @@ watch(
     await loadUsers(props.userType);
   },
 );
+
+watch(dateOption, async(newVal, oldVal) =>{
+  await loadUsers(props.userType);
+})
 
 // load some data when component loads
 onMounted(async () => {

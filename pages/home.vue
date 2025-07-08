@@ -13,28 +13,21 @@
         <p class="text-gray-500">Navigation</p>
       </div>
       <UButton
-        to="/users"
+      v-for="m in menus"
+        :to="m.path"
         color="neutral"
         class="w-full p-4 bg-primary-200 mt-10 rounded-2xl"
       >
-        <span class="font-bold text-xl"> Users / Scrape </span>
-      </UButton>
-
-      <UButton
-        to="/bots"
-        color="neutral"
-        class="w-full p-4 bg-primary-200 mt-10 rounded-2xl"
-      >
-        <span class="font-bold text-xl"> Bot Status </span>
-      </UButton>
-
-      <UButton
-        to="/scraper"
-        color="neutral"
-        class="w-full p-4 bg-primary-200 mt-10 rounded-2xl"
-      >
-        <span class="font-bold text-xl"> Scraper Status </span>
+        <span class="font-bold text-xl"> {{ m.name }} </span>
       </UButton>
     </UCard>
   </div>
 </template>
+
+<script setup lang="ts">
+const menus = [
+  {name: "Users / Scrape", path: "/users"},
+  {name: "Bot Status", path: "/bots"},
+  {name: "Scraper Status", path: "/scraper"},
+]
+</script>
