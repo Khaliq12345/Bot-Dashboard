@@ -1,24 +1,9 @@
 <template>
   <div class="w-full">
     <div class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5">
-      <!-- <USelectComponent :items="sortOrders" :model="sortOrder" name="Sort" placeholder="Sort" />
-      <USelectComponent :items="creators" :model="selectedCreator" name="Creators" placeholder="Creators" /> -->
-      <USelect
-        :items="sortOrders"
-        v-model="sortOrder"
-        class="text-black-300"
-        name="Sort"
-        placeholder="Sort"
-      />
-      <USelect
-        :items="creators"
-        v-model="selectedCreator"
-        class="text-black-300"
-        placeholder="Creators"
-      />
-      <UInputNumber v-model="limit" orientation="vertical" placeholder="Limit" class="text-red-300 w-24" />
-      <!-- Export -->
-      <UButton  @click="useexportCSV(botData, cols, 'bots_status')" :label="'Export CSV'" color="neutral" icon="i-heroicons-arrow-down" />
+      <TableFilters :creators="creators" :orders="sortOrders" @update-creator="(value) => (selectedCreator = value)"
+    @update-limit="(value) => (limit = value)"
+    @update-order="(value) => (sortOrder = value)" @export-c-s-v="useexportCSV(botData, cols, 'bots_status')" />
     </div>
     <TableModel :columns0="columns" :data0="botData" :creators-lst="creators"
       :key="`${botData.length}_${selectedCreator}_${sortOrder}`" />
@@ -110,7 +95,7 @@ const loadData = async () => {
       .range(offset, offset + limit.value);
     const { data } = await stmt;
     botData.value = data as any;
-    console.log(botData.value);
+    // console.log(botData.value);
   } catch (err) {
     console.error("Error:", err);
   } finally {

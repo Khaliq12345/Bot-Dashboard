@@ -3,34 +3,10 @@
     <div
       class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5"
     >
-      <!-- <USelectComponent :items="sortOrders" :model="sortOrder" name="Sort" placeholder="Sort" /> -->
-      <USelectComponent
-        :items="sortOrders"
-        name="Sort"
-        placeholder="Sort"
-        @update-order="(value) => (sortOrder = value)"
-      />
-      <!--      <USelect
-        :items="sortOrders"
-        v-model="sortOrder"
-        class="text-black-300"
-        name="Sort"
-        placeholder="Sort"
-      />
--->
-      <UInputNumber
-        v-model="limit"
-        orientation="vertical"
-        placeholder="Limit"
-        class="text-black-300"
-      />
-      <!-- Export -->
-      <UButton
-        @click="useexportCSV(users, cols, `${props.userType}`)"
-        :label="'Export CSV'"
-        color="neutral"
-        icon="i-heroicons-arrow-down"
-      />
+    <TableFilters :creators="creators" :orders="sortOrders" @update-creator="(value) => (selectedCreator = value)"
+    @update-limit="(value) => (limit = value)"
+    @update-order="(value) => (sortOrder = value)" @export-c-s-v="useexportCSV(users, cols, `${props.userType}`)" />
+    
     </div>
     <TableModel
       :columns0="columns"
