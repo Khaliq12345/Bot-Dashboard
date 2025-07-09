@@ -34,9 +34,6 @@
 
 <script setup lang="ts">
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { resolveComponent } from "vue";
-
-const UButton = resolveComponent("UButton");
 
 // Initialise supabase client
 const supabase = inject("supabase") as SupabaseClient;

@@ -1,15 +1,33 @@
 <template>
   <div class="w-full">
-    <div class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5">
-      <TableFilters :creators="creators" :orders="sortOrders" :statuses="sortStatuses" :with-status="true" @update-creator="(value) => (selectedCreator = value)"
-    @update-limit="(value) => (limit = value)"
-    @update-status="(value) => (sortStatus = value)"
-    @update-order="(value) => (sortOrder = value)" @export-c-s-v="useexportCSV(botData, cols, 'bots_status')" />
+    <div
+      class="flex flex-row justify-center md:justify-between w-full gap-4 mb-5"
+    >
+      <TableFilters
+        :creators="creators"
+        :orders="sortOrders"
+        :statuses="sortStatuses"
+        :with-status="true"
+        @update-creator="(value) => (selectedCreator = value)"
+        @update-limit="(value) => (limit = value)"
+        @update-status="(value) => (sortStatus = value)"
+        @update-order="(value) => (sortOrder = value)"
+        @export-c-s-v="useexportCSV(botData, cols, 'bots_status')"
+      />
     </div>
-    <TableModel :columns0="columns" :data0="botData" :creators-lst="creators"
-      :key="`${botData.length}_${selectedCreator}_${sortOrder}`" />
+    <TableModel
+      :columns0="columns"
+      :data0="botData"
+      :creators-lst="creators"
+      :key="`${botData.length}_${selectedCreator}_${sortOrder}`"
+    />
     <UButtonGroup class="mt-5">
-      <UButton color="neutral" variant="outline" label="Prev" @click="page > 0 ? page-- : {}" />
+      <UButton
+        color="neutral"
+        variant="outline"
+        label="Prev"
+        @click="page > 0 ? page-- : {}"
+      />
       <UButton color="neutral" variant="outline" label="Next" @click="page++" />
     </UButtonGroup>
   </div>
@@ -22,7 +40,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const props = defineProps({
   creators: { type: Array<any>, required: true },
 });
-
 
 // initialize variables
 const botData = ref<Array<any>>([]);
@@ -43,6 +60,7 @@ const cols: string[] = [
   "last_error",
   "last_run",
   "user",
+  "post_link",
 ];
 const columns: TableColumn<any>[] = [];
 
@@ -107,14 +125,10 @@ const loadData = async () => {
   }
 };
 
-
 // monitor changes in a few sources
 watch(
   () => [sortStatus, selectedCreator.value, limit.value, page.value],
-  async (
-    [newCreator, newLimit, newPage],
-    [oldCreator, oldLimit, oldPage],
-  ) => {
+  async ([newCreator, newLimit, newPage], [oldCreator, oldLimit, oldPage]) => {
     await loadData();
   },
 );
@@ -126,7 +140,6 @@ watch(sortOrder, async (newVal, oldVal) => {
 watch(sortStatus, async (newVal, oldVal) => {
   await loadData();
 });
-
 
 // load some data when component loads
 onMounted(async () => {

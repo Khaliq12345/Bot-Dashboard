@@ -1,6 +1,9 @@
 <template>
   <DashBoardHeader title="Bots Dashboard">
-    <div v-if="loadingData" class="place-items-center place-content-center my-15">
+    <div
+      v-if="loadingData"
+      class="place-items-center place-content-center my-15"
+    >
       <UProgress animation="carousel" color="secondary" />
     </div>
     <!-- When Loaded -->
@@ -8,11 +11,17 @@
       <!-- General Metrics -->
       <div class="mb-10 flex gap-2 md:gap-5 items-center justify-center">
         <div class="" v-for="item in generalMetrics">
-          <UCard variant="soft" class="text-center shadow-2xl" :class="item.color">
+          <UCard
+            variant="soft"
+            class="text-center shadow-2xl"
+            :class="item.color"
+          >
             <div class="flex items-center justify-start">
               <div class="text-left">
                 <UIcon :name="item.icon" size="30" class="mr-5" />
-                <h3 class="text-md md:text-lg font-bold mb-2">{{ item.value }}</h3>
+                <h3 class="text-md md:text-lg font-bold mb-2">
+                  {{ item.value }}
+                </h3>
                 <p class="font-semibold">{{ item.title }}</p>
               </div>
             </div>
@@ -20,15 +29,21 @@
         </div>
       </div>
       <!--  -->
-      <USeparator class="mb-10 " />
+      <USeparator class="mb-10" />
       <!-- Bot Cards -->
-      <div class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center">
-        <UCard v-for="botCard in botCards" class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
-          variant="outline" :class="{
+      <div
+        class="mb-10 flex flex-col md:flex-row gap-5 items-center justify-center"
+      >
+        <UCard
+          v-for="botCard in botCards"
+          class="w-full rounded-2xl max-w-md shadow-2xl md:text-lg text-sm"
+          variant="outline"
+          :class="{
             'bg-gray-300': !botCard.id,
             'bg-green-300': botCard.id && botCard.status == 'success',
             'bg-red-300': botCard.id && botCard.status == 'failed',
-          }">
+          }"
+        >
           <div class="text-center">
             <h1 class="text-2xl font-bold">{{ botCard.creator }}</h1>
             <p class="text-gray-500">{{ botCard.bot_type }}</p>
@@ -37,35 +52,45 @@
           <div v-if="botCard.id" class="text-left">
             <div class="mb-3">
               <span class="font-bold">Running Status :</span>
-              <span class="ml-2" :class="isMoreThanOneHourAgo(botCard.last_run)
-                ? 'text-amber-600'
-                : 'text-green-600'
-                ">
+              <span
+                class="ml-2"
+                :class="
+                  isMoreThanOneHourAgo(botCard.last_run)
+                    ? 'text-amber-600'
+                    : 'text-green-600'
+                "
+              >
                 {{
                   isMoreThanOneHourAgo(botCard.last_run) ? "Inactive" : "Active"
                 }}
               </span>
             </div>
             <!--  -->
-            <div class="mb-2" v-for="col in columns.filter((c)=>!c['key2'])">
+            <div class="mb-2" v-for="col in columns.filter((c) => !c['key2'])">
               <span class="font-bold">{{ col["title"] }}: </span>
               <span class="ml-2">
                 {{ botCard[col["key"]] }}
               </span>
             </div>
-            <UCollapsible v-if="columns.filter((c)=>!c['key']).length > 0" :default-open="false">
-          <UButton class="w-full bg-white text-black mb-2">
-            <span class="font-bold text-sm md:text-lg"> More Metrics </span>
-          </UButton>
-          <template #content>
-            <div class="mb-3" v-for="col in columns.filter((c)=>!c['key'])">
-              <span class="font-bold">{{ col["title"] }}: </span>
-              <span class="ml-2">
-                {{ botCard.metrics[col["key2"]] }}
-              </span>
-            </div>
-          </template>
-        </UCollapsible>
+            <UCollapsible
+              v-if="columns.filter((c) => !c['key']).length > 0"
+              :default-open="false"
+            >
+              <UButton class="w-full bg-white text-black mb-2">
+                <span class="font-bold text-sm md:text-lg"> More Metrics </span>
+              </UButton>
+              <template #content>
+                <div
+                  class="mb-3"
+                  v-for="col in columns.filter((c) => !c['key'])"
+                >
+                  <span class="font-bold">{{ col["title"] }}: </span>
+                  <span class="ml-2">
+                    {{ botCard.metrics[col["key2"]] }}
+                  </span>
+                </div>
+              </template>
+            </UCollapsible>
             <!--  -->
           </div>
           <div v-else class="py-15 font-bold">No Data</div>
@@ -75,7 +100,9 @@
       <div class="mb-10">
         <!-- Table -->
         <UCollapsible :default-open="true">
-          <UButton class="w-full p-4 bg-gray-300 rounded-bl-none rounded-br-none">
+          <UButton
+            class="w-full p-4 bg-gray-300 rounded-bl-none rounded-br-none"
+          >
             <span class="font-bold text-sm md:text-lg"> Bot Status Table </span>
           </UButton>
           <template #content>
@@ -91,7 +118,6 @@
 
 <script setup lang="ts">
 import type { SupabaseClient } from "@supabase/supabase-js";
-import BotsTable from "~/components/Bots/BotsTable.vue";
 
 interface Column {
   title: string;
@@ -153,18 +179,42 @@ const columns: Column[] = [
     key: "",
     key2: "lastSuccessRun",
   },
+  {
+    title: "Last Post Link",
+    key: "",
+    key2: "post_link",
+  },
 ];
 const generalMetrics = [
-  { title: 'Total Bots', icon: 'i-lucide-bot', value: computed(() => botCards.value.length), color: 'bg-amber-200' },
   {
-    title: 'Active Bots', icon: 'i-lucide-drone', value: computed(() => botCards.value.filter((value) => {
-      return !isMoreThanOneHourAgo(value.last_run)
-    }).length), color: 'bg-green-200'
+    title: "Total Bots",
+    icon: "i-lucide-bot",
+    value: computed(() => botCards.value.length),
+    color: "bg-amber-200",
   },
-  { title: 'Inactive Bots', icon: 'i-lucide-bot-off', value: computed(() => botCards.value.filter((value) => {
-      return isMoreThanOneHourAgo(value.last_run)
-    }).length), color: 'bg-red-200' },
-]
+  {
+    title: "Active Bots",
+    icon: "i-lucide-drone",
+    value: computed(
+      () =>
+        botCards.value.filter((value) => {
+          return !isMoreThanOneHourAgo(value.last_run);
+        }).length,
+    ),
+    color: "bg-green-200",
+  },
+  {
+    title: "Inactive Bots",
+    icon: "i-lucide-bot-off",
+    value: computed(
+      () =>
+        botCards.value.filter((value) => {
+          return isMoreThanOneHourAgo(value.last_run);
+        }).length,
+    ),
+    color: "bg-red-200",
+  },
+];
 
 // Functions
 async function loadCreators() {
@@ -178,6 +228,7 @@ async function loadCreators() {
 }
 
 async function loadCardsInfo() {
+  console.log("Calling");
   loadingData.value = true;
   await loadCreators();
   try {
@@ -202,6 +253,7 @@ async function loadCardsInfo() {
           last_error: null,
           last_run: null,
           user: null,
+          post_link: null,
         };
         if (data && data.length > 0) {
           latestBotStatus = data[0];
@@ -210,23 +262,30 @@ async function loadCardsInfo() {
         let metrics = null;
         // All Data
         const { data: history, error: historyError } = await supabase
-          .from('bot_status')
-          .select('status, last_run, created_at')
-          .eq('creator', creator)
-          .eq('bot_type', botType)
+          .from("bot_status")
+          .select("status, last_run, created_at")
+          .eq("creator", creator)
+          .eq("bot_type", botType);
 
         if (history) {
-          const totalRuns = history.length
-          const successes = history.filter((x) => x.status === 'success').length
-          const failures = history.filter((x) => x.status === 'failed').length
+          const totalRuns = history.length;
+          const successes = history.filter(
+            (x) => x.status === "success",
+          ).length;
+          const failures = history.filter((x) => x.status === "failed").length;
           // Uptime = % de succès
-          const uptime = totalRuns ? (successes / totalRuns) * 100 : 0
+          const uptime = totalRuns ? (successes / totalRuns) * 100 : 0;
           // Taux d'échec
-          const failurePercentage = totalRuns ? (failures / totalRuns) * 100 : 0
+          const failurePercentage = totalRuns
+            ? (failures / totalRuns) * 100
+            : 0;
           // Dernier run réussi
           const lastSuccess = history
-            .filter((x) => x.status === 'success')
-            .sort((a, b) => new Date(b.last_run).getTime() - new Date(a.last_run).getTime())[0]
+            .filter((x) => x.status === "success")
+            .sort(
+              (a, b) =>
+                new Date(b.last_run).getTime() - new Date(a.last_run).getTime(),
+            )[0];
 
           metrics = {
             totalRuns: totalRuns,
@@ -235,12 +294,13 @@ async function loadCardsInfo() {
             failureRate: `${failures} / ${totalRuns}`,
             failurePercentage: `${Number(failurePercentage.toFixed(2))} %`,
             lastSuccessRun: lastSuccess?.last_run || null,
-          }
+          };
         }
-        // 
+        //
+        console.log(latestBotStatus);
         botCards.value.push({
           ...latestBotStatus,
-          metrics: metrics
+          metrics: metrics,
         });
       }
     }
