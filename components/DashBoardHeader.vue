@@ -12,13 +12,22 @@
       <!-- Main Content -->
       <main class="text-center overflow-y-auto md:p-4 p-1 lg:p-8">
         <!-- Welcome -->
+         <div class="text-end mt-3">
+                <ULink to="/home" class="">
+                  <UButton color="primary" variant="ghost" icon="i-heroicons-arrow-uturn-left" @click=""
+                    class=" cursor-pointer bg-gray-100">
+                    Back to Home
+                  </UButton>
+                </ULink>
+              </div>
         <div class="flex justify-center">
           <div class="flex flex-col ml-4">
-            <span class="text-2xl md:text-3xl m-5">
+            <span class="text-2xl md:text-3xl m-3">
               Welcome, <span class="font-bold text-primary-800"> Here </span> !
             </span>
           </div>
         </div>
+        
         <!-- Page Content -->
         <!-- Loading -->
         <slot></slot>

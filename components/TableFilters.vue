@@ -1,5 +1,6 @@
 <template>
-  <USelect
+  <div class="flex items-center justify-evenly flex-wrap w-full gap-y-3">
+<USelect
     :items="orders"
     v-model="order"
     name="Sort"
@@ -41,6 +42,8 @@
         color="neutral"
         icon="i-heroicons-arrow-down"
       />
+  </div>
+  
 </template>
 
 <script setup lang="ts">

@@ -86,7 +86,7 @@
                 >
                   <span class="font-bold">{{ col["title"] }}: </span>
                   <span class="ml-2">
-                    {{ botCard.metrics[col["key2"]] }}
+                    {{ botCard.metrics[col["key2"]]??'None' }}
                   </span>
                 </div>
               </template>
@@ -294,6 +294,7 @@ async function loadCardsInfo() {
             failureRate: `${failures} / ${totalRuns}`,
             failurePercentage: `${Number(failurePercentage.toFixed(2))} %`,
             lastSuccessRun: lastSuccess?.last_run || null,
+            post_link: latestBotStatus.post_link
           };
         }
         //
