@@ -11,6 +11,7 @@
                     'bg-gray-300': !botCard.id,
                     'bg-green-300': botCard.id && botCard.status == 'success',
                     'bg-red-300': botCard.id && botCard.status == 'failed',
+                    'bg-amber-300': botCard.id && botCard.status == 'running',
                 }">
                     <div class="text-center">
                         <h1 class="text-2xl font-bold uppercase mb-1">{{ botCard.status }}</h1>
@@ -75,19 +76,12 @@ const columns: any[] = [
     },
 ];
 const generalMetricskeys: Ref<any> = ref({
-    totalRunning: 0,
     totalSuccess: 0,
     totalFails: 0,
     successRate: '',
     failRate: '',
 })
 const generalMetrics = [
-    {
-        title: "Total Running",
-        icon: "i-lucide-drone",
-        key: "totalRunning",
-        color: "bg-amber-200",
-    },
     {
         title: "Total Success",
         icon: "i-lucide-check-check",
@@ -123,7 +117,7 @@ async function loadCardsInfo() {
             .from("scraping_status")
             .select("*")
             .order("id", { ascending: false })
-            // .eq('id', '3')
+            .eq('id', '2')
             .limit(1);
         if (data && data.length > 0) {
             botCard.value = data[0];
@@ -141,9 +135,7 @@ async function loadCardsInfo() {
             const failures = history.filter((x) => x.status === "failed").length;
             const successrate = totalRuns ? (successes / totalRuns) * 100 : 0;
             const failurerate = totalRuns ? (failures / totalRuns) * 100 : 0;
-            const running = history.filter((x) => x.status === "running").length;
             generalMetricskeys.value = {
-                totalRunning: running,
                 totalSuccess: successes,
                 totalFails: failures,
                 successRate: `${successes}/${totalRuns} (${Number(successrate.toFixed(2))} %)`,
