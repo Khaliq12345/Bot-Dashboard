@@ -9,7 +9,7 @@
     <!-- When Loaded -->
     <div v-else class="mt-10">
       <!-- General Metrics -->
-      <div class="mb-10 flex gap-2 md:gap-5 items-center justify-center">
+      <div class="mb-10 flex flex-wrap gap-2 md:gap-5 items-center justify-center">
         <div class="" v-for="item in generalMetrics">
           <UCard
             variant="soft"
@@ -18,8 +18,8 @@
           >
             <div class="flex items-center justify-start">
               <div class="text-left">
-                <UIcon :name="item.icon" size="30" class="mr-5" />
-                <h3 class="text-md md:text-lg font-bold mb-2">
+                <UIcon :name="item.icon" size="25" class="mr-5" />
+                <h3 class="text-sm md:text-md font-bold mb-2">
                   {{ item.value }}
                 </h3>
                 <p class="font-semibold">{{ item.title }}</p>
