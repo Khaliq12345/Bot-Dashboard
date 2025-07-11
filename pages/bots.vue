@@ -42,11 +42,17 @@
             'bg-gray-300': !botCard.id,
             'bg-green-300': botCard.id && botCard.status == 'success',
             'bg-red-300': botCard.id && botCard.status == 'failed',
+            'bg-yellow-300': botCard.id && botCard.status == 'running',
           }"
         >
           <div class="text-center">
             <h1 class="text-2xl font-bold">{{ botCard.creator }}</h1>
             <p class="text-gray-500">{{ botCard.bot_type }}</p>
+            <UProgress
+              animation="swing"
+              color="info"
+              v-show="botCard.status == 'running'"
+            />
           </div>
           <USeparator class="mr-5 my-3" />
           <div v-if="botCard.id" class="text-left">
@@ -86,7 +92,7 @@
                 >
                   <span class="font-bold">{{ col["title"] }}: </span>
                   <span class="ml-2">
-                    {{ botCard.metrics[col["key2"]]??'None' }}
+                    {{ botCard.metrics[col["key2"]] ?? "None" }}
                   </span>
                 </div>
               </template>
@@ -294,7 +300,7 @@ async function loadCardsInfo() {
             failureRate: `${failures} / ${totalRuns}`,
             failurePercentage: `${Number(failurePercentage.toFixed(2))} %`,
             lastSuccessRun: lastSuccess?.last_run || null,
-            post_link: latestBotStatus.post_link
+            post_link: latestBotStatus.post_link,
           };
         }
         //
