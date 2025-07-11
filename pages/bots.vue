@@ -189,7 +189,7 @@ const generalMetrics = [
     value: computed(
       () =>
         botCards.value.filter((value) => {
-          return value.status == 'success';
+          return value.status == "success";
         }).length,
     ),
     color: "bg-green-200",
@@ -200,10 +200,21 @@ const generalMetrics = [
     value: computed(
       () =>
         botCards.value.filter((value) => {
-          return value.status == 'failed';
+          return value.status == "failed";
         }).length,
     ),
     color: "bg-red-200",
+  },
+  {
+    title: "Running Bots",
+    icon: "i-lucide-loader",
+    value: computed(
+      () =>
+        botCards.value.filter((value) => {
+          return value.status == "running";
+        }).length,
+    ),
+    color: "bg-yellow-200",
   },
 ];
 
@@ -228,14 +239,7 @@ async function loadCardsInfo() {
       const creator = creatorsLst.value[i];
       for (const j in botTypes) {
         const botType = botTypes[j];
-        // console.log(creator, botType)
-        let { data, error } = await supabase
-          .from("bot_status")
-          .select("*")
-          .eq("creator", creator)
-          .eq("bot_type", botType)
-          .order("last_run", { ascending: false })
-          .limit(1);
+        // Initialise the variables
         let latestBotStatus = {
           id: null,
           created_at: null,
@@ -247,24 +251,20 @@ async function loadCardsInfo() {
           user: null,
           post_link: null,
         };
-        if (data && data.length > 0) {
-          latestBotStatus = data[0];
-        }
         // Working Metrics
         let metrics = null;
         // All Data
-        const { data: history, error: historyError } = await supabase
+        const { data, error } = await supabase
           .from("bot_status")
-          .select("status, last_run, created_at")
+          .select("*")
           .eq("creator", creator)
-          .eq("bot_type", botType);
-
-        if (history) {
-          const totalRuns = history.length;
-          const successes = history.filter(
-            (x) => x.status === "success",
-          ).length;
-          const failures = history.filter((x) => x.status === "failed").length;
+          .eq("bot_type", botType)
+          .order("last_run", { ascending: false });
+        if (data) {
+          latestBotStatus = data[0];
+          const totalRuns = data.length;
+          const successes = data.filter((x) => x.status === "success").length;
+          const failures = data.filter((x) => x.status === "failed").length;
           // Uptime = % de succès
           const uptime = totalRuns ? (successes / totalRuns) * 100 : 0;
           // Taux d'échec
@@ -272,7 +272,7 @@ async function loadCardsInfo() {
             ? (failures / totalRuns) * 100
             : 0;
           // Dernier run réussi
-          const lastSuccess = history
+          const lastSuccess = data
             .filter((x) => x.status === "success")
             .sort(
               (a, b) =>

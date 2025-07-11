@@ -138,23 +138,18 @@ async function loadCardsInfo() {
   console.log("Calling");
   loadingData.value = true;
   try {
-    let { data, error } = await supabase
+    // Working Metrics
+    const { data, error } = await supabase
       .from("scraping_status")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(1);
-    if (data && data.length > 0) {
-      botCard.value = data[0];
-    }
-    // Working Metrics
-    const { data: history, error: historyError } = await supabase
-      .from("scraping_status")
-      .select("*");
 
-    if (history) {
-      const totalRuns = history.length;
-      const successes = history.filter((x) => x.status === "success").length;
-      const failures = history.filter((x) => x.status === "failed").length;
+    if (data) {
+      botCard.value = data[0];
+      const totalRuns = data.length;
+      const successes = data.filter((x) => x.status === "success").length;
+      const failures = data.filter((x) => x.status === "failed").length;
       const successrate = totalRuns ? (successes / totalRuns) * 100 : 0;
       const failurerate = totalRuns ? (failures / totalRuns) * 100 : 0;
       generalMetricskeys.value = {
