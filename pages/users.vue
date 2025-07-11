@@ -126,5 +126,8 @@ watch(creator, async (newVal, oldVal) => {
 onMounted(async () => {
   await loadCreators();
   await loadStats();
+  setInterval(async () => {
+    await loadStats();
+  }, 60000);
 });
 </script>

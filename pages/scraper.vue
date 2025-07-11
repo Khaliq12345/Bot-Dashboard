@@ -173,5 +173,8 @@ async function loadCardsInfo() {
 
 onMounted(async () => {
   await loadCardsInfo();
+  setInterval(async () => {
+    await loadCardsInfo();
+  }, 60000);
 });
 </script>

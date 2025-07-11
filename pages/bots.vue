@@ -183,6 +183,28 @@ const generalMetrics = [
     value: computed(() => botCards.value.length),
     color: "bg-amber-200",
   },
+  {
+    title: "Successful Bots",
+    icon: "i-lucide-drone",
+    value: computed(
+      () =>
+        botCards.value.filter((value) => {
+          return value.status == 'success';
+        }).length,
+    ),
+    color: "bg-green-200",
+  },
+  {
+    title: "With Error Bots",
+    icon: "i-lucide-bot-off",
+    value: computed(
+      () =>
+        botCards.value.filter((value) => {
+          return value.status == 'failed';
+        }).length,
+    ),
+    color: "bg-red-200",
+  },
 ];
 
 // Functions
@@ -200,6 +222,7 @@ async function loadCardsInfo() {
   console.log("Calling");
   loadingData.value = true;
   await loadCreators();
+  botCards.value = [];
   try {
     for (const i in creatorsLst.value) {
       const creator = creatorsLst.value[i];
@@ -283,5 +306,8 @@ async function loadCardsInfo() {
 
 onMounted(async () => {
   await loadCardsInfo();
+  setInterval(async () => {
+    await loadCardsInfo();
+  }, 60000);
 });
 </script>
