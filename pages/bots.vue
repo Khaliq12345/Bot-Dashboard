@@ -56,21 +56,6 @@
           </div>
           <USeparator class="mr-5 my-3" />
           <div v-if="botCard.id" class="text-left">
-            <div class="mb-3">
-              <span class="font-bold">Running Status :</span>
-              <span
-                class="ml-2"
-                :class="
-                  isMoreThanOneHourAgo(botCard.last_run)
-                    ? 'text-amber-600'
-                    : 'text-green-600'
-                "
-              >
-                {{
-                  isMoreThanOneHourAgo(botCard.last_run) ? "Inactive" : "Active"
-                }}
-              </span>
-            </div>
             <!--  -->
             <div class="mb-2" v-for="col in columns.filter((c) => !c['key2'])">
               <span class="font-bold">{{ col["title"] }}: </span>
@@ -197,28 +182,6 @@ const generalMetrics = [
     icon: "i-lucide-bot",
     value: computed(() => botCards.value.length),
     color: "bg-amber-200",
-  },
-  {
-    title: "Active Bots",
-    icon: "i-lucide-drone",
-    value: computed(
-      () =>
-        botCards.value.filter((value) => {
-          return !isMoreThanOneHourAgo(value.last_run);
-        }).length,
-    ),
-    color: "bg-green-200",
-  },
-  {
-    title: "Inactive Bots",
-    icon: "i-lucide-bot-off",
-    value: computed(
-      () =>
-        botCards.value.filter((value) => {
-          return isMoreThanOneHourAgo(value.last_run);
-        }).length,
-    ),
-    color: "bg-red-200",
   },
 ];
 
